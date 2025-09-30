@@ -41,11 +41,13 @@ void input_handler(){
 }
 
 
-void render_game(int size, deque<pair<int, int>> &snake, pair<int, int> food){
+void render_game(int size, deque<pair<int, int>> &snake, pair<int, int> food, pair<int, int> badFood){
     for(size_t i=0;i<size;i++){
         for(size_t j=0;j<size;j++){
             if (i == food.first && j == food.second){
                 cout << "🍎";
+            }else if (i == badFood.first && j == badFood.second){
+                cout << "💀";
             }else if (find(snake.begin(), snake.end(), make_pair(int(i), int(j))) != snake.end()) {
                 cout << "🐍";
             }else{
@@ -74,11 +76,13 @@ pair<int,int> get_next_head(pair<int,int> current, char direction){
     
 }
 
-pair<int, int> generate_food(const deque<pair<int, int>> &snake, int size) {
+pair<int, int> generate_food(const deque<pair<int, int>> &snake, int size, pair<int,int> avoid = {-1,-1}) {
     pair<int, int> food;
     do {
         food = make_pair(rand() % size, rand() % size);
-    } while (find(snake.begin(), snake.end(), food) != snake.end());
+    } while (find(snake.begin(), snake.end(), food) != snake.end() || 
+        (food == avoid)
+    );
     return food;
 }
 
@@ -103,13 +107,14 @@ void game_play(){
     snake.push_back(make_pair(0,0));
 
     pair<int, int> food = generate_food(snake, 10);
+    pair<int, int> badFood = generate_food(snake, 10, food);
     for(pair<int, int> head=make_pair(0,1); ; ){
         // send the cursor to the top
         cout << "\033[H";
         // check self collision
 
         if(paused) {
-            render_game(10, snake, food);
+            render_game(10, snake, food, badFood);
             sleep_for(200ms);
             head = snake.back();
             continue;
@@ -129,14 +134,27 @@ void game_play(){
             break;
         }else if (head.first == food.first && head.second == food.second) {
             // grow snake
-            food = generate_food(snake, 10);
+            food = generate_food(snake, 10, badFood);
             snake.push_back(head);            
+        }else if (head.first == badFood.first && head.second == badFood.second) {
+            system("clear");
+            cout << "Game Over (ate bad food 💀)" << endl;
+            int finalScore = snake.size();
+            cout << "Your score: " << finalScore << endl;
+            update_high_scores(finalScore);
+            show_high_scores();
+            break;
         }else{
             // move snake
             snake.push_back(head);
             snake.pop_front();
         }
-        render_game(10, snake, food);
+
+        if (rand() % 5 == 0) { 
+            badFood = generate_food(snake, 10, food);
+        }
+
+        render_game(10, snake, food, badFood);
         cout << "length of snake: " << snake.size() << endl;
     
         sleep_for(500ms);
