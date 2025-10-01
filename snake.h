@@ -41,7 +41,7 @@ void input_handler(){
 }
 
 
-void render_game(int size, deque<pair<int, int>> &snake, pair<int, int> food, pair<int, int> badFood){
+void render_game(int size, deque<pair<int, int>> &snake, pair<int, int> food, pair<int, int> badFood, int score){
     for(size_t i=0;i<size;i++){
         for(size_t j=0;j<size;j++){
             if (i == food.first && j == food.second){
@@ -57,7 +57,7 @@ void render_game(int size, deque<pair<int, int>> &snake, pair<int, int> food, pa
         cout << endl;
     }
 
-    cout << " Score: " << snake.size() << (paused ? " | PAUSED (press 'p' to resume)" : "") << endl;
+    cout << " Score: " << score << (paused ? " | PAUSED (press 'p' to resume)" : "") << endl;
 }
 
 pair<int,int> get_next_head(pair<int,int> current, char direction){
@@ -106,6 +106,8 @@ void game_play(){
     deque<pair<int, int>> snake;
     snake.push_back(make_pair(0,0));
 
+    int score = 0;
+
     pair<int, int> food = generate_food(snake, 10);
     pair<int, int> badFood = generate_food(snake, 10, food);
     for(pair<int, int> head=make_pair(0,1); ; ){
@@ -114,7 +116,7 @@ void game_play(){
         // check self collision
 
         if(paused) {
-            render_game(10, snake, food, badFood);
+            render_game(10, snake, food, badFood, score);
             sleep_for(200ms);
             head = snake.back();
             continue;
@@ -135,7 +137,8 @@ void game_play(){
         }else if (head.first == food.first && head.second == food.second) {
             // grow snake
             food = generate_food(snake, 10, badFood);
-            snake.push_back(head);            
+            snake.push_back(head);     
+            score += 10;       
         }else if (head.first == badFood.first && head.second == badFood.second) {
             system("clear");
             cout << "Game Over (ate bad food 💀)" << endl;
@@ -154,7 +157,7 @@ void game_play(){
             badFood = generate_food(snake, 10, food);
         }
 
-        render_game(10, snake, food, badFood);
+        render_game(10, snake, food, badFood, score);
         cout << "length of snake: " << snake.size() << endl;
     
         sleep_for(500ms);
