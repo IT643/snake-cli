@@ -108,6 +108,11 @@ void game_play(){
 
     pair<int, int> food = generate_food(snake, 10);
     pair<int, int> badFood = generate_food(snake, 10, food);
+    
+    int foodEaten = 0;
+    int speed = 500;
+    const int minSpeed = 100;
+
     for(pair<int, int> head=make_pair(0,1); ; ){
         // send the cursor to the top
         cout << "\033[H";
@@ -135,7 +140,12 @@ void game_play(){
         }else if (head.first == food.first && head.second == food.second) {
             // grow snake
             food = generate_food(snake, 10, badFood);
-            snake.push_back(head);            
+            snake.push_back(head);
+            
+            foodEaten++;
+            if (foodEaten % 5 == 0 && speed > minSpeed) {
+                speed -= 50;
+            } 
         }else if (head.first == badFood.first && head.second == badFood.second) {
             system("clear");
             cout << "Game Over (ate bad food 💀)" << endl;
@@ -156,7 +166,8 @@ void game_play(){
 
         render_game(10, snake, food, badFood);
         cout << "length of snake: " << snake.size() << endl;
+        cout << "speed: " << speed << "ms" << endl;
     
-        sleep_for(500ms);
+        sleep_for(chrono::milliseconds(speed));
     }
 }
