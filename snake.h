@@ -129,9 +129,9 @@ void game_play(){
             cout << "Game Over" << endl;
 
             int finalScore = snake.size();
-            cout << "Your score: " << finalScore << endl;
+            cout << "Your score: " << score << endl;
 
-            update_high_scores(finalScore);
+            update_high_scores(score);
             show_high_scores();
             break;
         }else if (head.first == food.first && head.second == food.second) {
@@ -143,8 +143,8 @@ void game_play(){
             system("clear");
             cout << "Game Over (ate bad food 💀)" << endl;
             int finalScore = snake.size();
-            cout << "Your score: " << finalScore << endl;
-            update_high_scores(finalScore);
+            cout << "Your score: " << score << endl;
+            update_high_scores(score);
             show_high_scores();
             break;
         }else{
